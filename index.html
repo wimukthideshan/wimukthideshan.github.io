@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Wimukthi Deshan — Software Engineer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; -webkit-font-smoothing: antialiased; }
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background: #0a0a0a;
+    color: #e8e8e8;
+    font-size: 16px;
+    line-height: 1.75;
+    overflow-x: hidden;
+  }
+  ::selection { background: rgba(78, 205, 196, 0.25); color: #fff; }
+  a { color: inherit; text-decoration: none; }
+  a:hover { color: #4ecdc4; }
+  button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+
+  /* ---------- Ambient layers ---------- */
+  .spotlight {
+    position: fixed; inset: 0; pointer-events: none; z-index: 1;
+    background: radial-gradient(420px circle at var(--mx, -200px) var(--my, -200px),
+      rgba(78, 205, 196, 0.045), transparent 70%);
+  }
+  @media (hover: none), (max-width: 768px) { .spotlight { display: none; } }
+  .grain {
+    position: fixed; inset: -50%; width: 200%; height: 200%;
+    pointer-events: none; z-index: 1; opacity: 0.035; mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+    animation: grain 6s steps(6) infinite;
+  }
+  @keyframes grain {
+    0% { transform: translate(0,0); } 20% { transform: translate(-3%,2%); }
+    40% { transform: translate(2%,-3%); } 60% { transform: translate(-2%,3%); }
+    80% { transform: translate(3%,1%); } 100% { transform: translate(0,0); }
+  }
+  .scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px; width: 0%;
+    background: linear-gradient(90deg, #4ecdc4, rgba(78,205,196,0.3));
+    z-index: 100; box-shadow: 0 0 10px rgba(78,205,196,0.4);
+  }
+
+  /* ---------- Starfield ---------- */
+  #stars {
+    position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  }
+
+  .container { max-width: 720px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 2; }
+
+  /* ---------- Nav ---------- */
+  nav.top {
+    position: sticky; top: 0; z-index: 50; padding: 18px 0;
+    transition: backdrop-filter 200ms ease, background-color 200ms ease, border-color 200ms ease;
+    border-bottom: 1px solid transparent;
+  }
+  nav.top.scrolled {
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    background: rgba(10,10,10,0.72); border-bottom-color: rgba(255,255,255,0.05);
+  }
+  nav.top .nav-inner {
+    max-width: 720px; margin: 0 auto; padding: 0 24px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  nav.top .brand { font-weight: 600; font-size: 14px; letter-spacing: -0.01em; }
+  nav.top .brand:hover { color: #e8e8e8; }
+  nav.top .brand .dot { color: #4ecdc4; }
+  nav.top ul { list-style: none; display: flex; gap: 26px; }
+  nav.top ul a {
+    position: relative; font-size: 13px; color: rgba(255,255,255,0.55);
+    transition: color 200ms ease; padding: 4px 0;
+  }
+  nav.top ul a::after {
+    content: ''; position: absolute; left: 0; right: 100%; bottom: 0; height: 1px;
+    background: #4ecdc4; transition: right 280ms cubic-bezier(0.2,0.7,0.2,1);
+  }
+  nav.top ul a:hover { color: #e8e8e8; }
+  nav.top ul a:hover::after, nav.top ul a.active::after { right: 0; }
+  nav.top ul a.active { color: #e8e8e8; }
+  @media (max-width: 640px) {
+    nav.top ul { gap: 14px; }
+    nav.top ul a { font-size: 12px; }
+    nav.top ul li:nth-child(n+4) { display: none; }
+  }
+
+  main { padding-top: 40px; }
+  section { padding: 90px 0; scroll-margin-top: 70px; }
+  @media (min-width: 768px) { section { padding: 110px 0; } }
+  .section-label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: #4ecdc4; margin-bottom: 32px; font-weight: 500;
+    display: flex; align-items: center; gap: 14px;
+  }
+  .section-label::after { content: ''; height: 1px; flex: 1; background: rgba(255,255,255,0.08); }
+
+  /* ---------- Reveal ---------- */
+  .reveal {
+    opacity: 0; transform: translateY(20px);
+    transition: opacity 500ms ease-out, transform 500ms ease-out;
+    transition-delay: var(--rd, 0ms);
+  }
+  .reveal.in { opacity: 1; transform: translateY(0); }
+
+  /* ---------- Hero ---------- */
+  .hero { padding-top: 90px; padding-bottom: 60px; }
+  .hero-grid {
+    display: grid; grid-template-columns: 1fr; gap: 40px; align-items: center;
+  }
+  @media (min-width: 760px) { .hero-grid { grid-template-columns: 1fr 220px; gap: 56px; } }
+  .hero .kicker {
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; color: #4ecdc4;
+    margin-bottom: 16px; letter-spacing: 0.02em;
+  }
+  .hero h1 {
+    font-size: clamp(34px, 6.5vw, 52px); font-weight: 600; line-height: 1.12;
+    letter-spacing: -0.03em; color: #f3f3f3; margin-bottom: 6px;
+  }
+  .squiggle { display: block; width: 240px; height: 16px; margin: 0 0 16px; overflow: visible; }
+  .squiggle path {
+    fill: none; stroke: #4ecdc4; stroke-width: 2.2; stroke-linecap: round;
+    stroke-dasharray: 400; stroke-dashoffset: 400; opacity: 0.85;
+  }
+  .reveal.in .squiggle path { animation: drawSquiggle 900ms 400ms ease-out forwards; }
+  @keyframes drawSquiggle { to { stroke-dashoffset: 0; } }
+  .hero h2.tagline {
+    font-size: clamp(17px, 2.6vw, 20px); font-weight: 400; color: rgba(255,255,255,0.65);
+    margin-bottom: 24px; min-height: 1.6em;
+  }
+  .hero h2.tagline .cursor {
+    display: inline-block; width: 2px; height: 1em; background: #4ecdc4;
+    transform: translateY(0.15em); margin-left: 3px; animation: blink 1.05s steps(1) infinite;
+  }
+  @keyframes blink { 50% { opacity: 0; } }
+  .hero p.bio { color: rgba(255,255,255,0.7); max-width: 540px; margin-bottom: 34px; }
+  .cta-row { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 26px; }
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; padding: 12px 20px;
+    font-size: 14px; font-weight: 500; border-radius: 8px; line-height: 1;
+    border: 1px solid transparent; position: relative; will-change: transform;
+    transition: transform 220ms ease, background-color 220ms ease, border-color 220ms ease;
+  }
+  .btn-primary { background: #4ecdc4; color: #0a0a0a; }
+  .btn-primary::before {
+    content: ''; position: absolute; inset: 0; border-radius: inherit;
+    background: radial-gradient(120px circle at var(--bx,50%) var(--by,50%), rgba(255,255,255,0.25), transparent 60%);
+    opacity: 0; transition: opacity 220ms ease; pointer-events: none;
+  }
+  .btn-primary:hover { background: #5fd6ce; color: #0a0a0a; }
+  .btn-primary:hover::before { opacity: 1; }
+  .btn-ghost { border-color: rgba(255,255,255,0.15); color: #e8e8e8; }
+  .btn-ghost:hover { border-color: rgba(255,255,255,0.35); color: #e8e8e8; }
+  .currently {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-size: 13px; color: rgba(255,255,255,0.55);
+  }
+  .currently .pulse {
+    width: 8px; height: 8px; border-radius: 50%; background: #57c97a;
+    animation: pulse 1.8s ease-out infinite;
+  }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(87,201,122,0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(87,201,122,0); }
+    100% { box-shadow: 0 0 0 0 rgba(87,201,122,0); }
+  }
+
+  .portrait-wrap {
+    position: relative; width: 220px; max-width: 60vw; margin: 0 auto;
+  }
+  .portrait-wrap::before {
+    content: ''; position: absolute; inset: -14px;
+    border: 1px solid rgba(78,205,196,0.25); border-radius: 18px;
+    transform: rotate(-3deg); transition: transform 400ms cubic-bezier(.34,1.56,.64,1);
+  }
+  .portrait-wrap:hover::before { transform: rotate(2deg); }
+  .portrait {
+    display: block; width: 100%; aspect-ratio: 1; object-fit: cover;
+    border-radius: 14px; border: 1px solid rgba(255,255,255,0.1);
+    filter: saturate(0.92);
+    transition: filter 300ms ease, transform 300ms ease;
+  }
+  .portrait-wrap:hover .portrait { filter: saturate(1.05); transform: translateY(-3px); }
+
+  /* ---------- About ---------- */
+  .about-text p { margin-bottom: 16px; color: rgba(255,255,255,0.78); max-width: 620px; }
+  .stack-row { margin-top: 30px; }
+  .stack-row .label {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em;
+    color: rgba(255,255,255,0.45); margin-bottom: 14px;
+  }
+  .pills { display: flex; flex-wrap: wrap; gap: 8px; }
+  .pill {
+    font-family: 'JetBrains Mono', monospace; font-size: 12px; padding: 6px 10px;
+    border-radius: 6px; background: #111; border: 1px solid rgba(255,255,255,0.07);
+    color: rgba(255,255,255,0.65); cursor: default;
+    transition: border-color 200ms ease, color 200ms ease, transform 200ms cubic-bezier(.34,1.56,.64,1);
+  }
+  .pill:hover { border-color: rgba(78,205,196,0.5); color: #e8e8e8; transform: translateY(-2px); }
+
+  /* ---------- Skills ---------- */
+  .skills-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+  @media (min-width: 540px) { .skills-grid { grid-template-columns: 1fr 1fr; } }
+  @media (min-width: 860px) { .skills-grid { grid-template-columns: 1fr 1fr 1fr; } }
+  .skill-card {
+    background: #111; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 22px;
+    transition: box-shadow 220ms ease, border-color 220ms ease, transform 220ms ease;
+  }
+  .skill-card:hover {
+    border-color: rgba(78,205,196,0.35);
+    box-shadow: 0 0 0 1px rgba(78,205,196,0.4);
+    transform: translateY(-3px);
+  }
+  .skill-card h3 {
+    font-size: 12px; font-weight: 500; text-transform: uppercase;
+    letter-spacing: 0.14em; color: #4ecdc4; margin-bottom: 14px;
+  }
+  .skill-card ul { list-style: none; }
+  .skill-card li { color: rgba(255,255,255,0.6); font-size: 14px; padding: 3px 0; }
+
+  /* ---------- Projects ---------- */
+  .projects-stack { display: flex; flex-direction: column; gap: 16px; }
+  .project-card {
+    background: #111; border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 10px; padding: 26px 28px;
+    transition: border-color 280ms ease, transform 220ms ease;
+    will-change: transform; position: relative;
+  }
+  .project-card:hover { border-color: rgba(78,205,196,0.4); }
+  .project-card .badge-row { display: flex; gap: 8px; margin-bottom: 12px; }
+  .project-card .badge {
+    display: inline-block; font-size: 10px; text-transform: uppercase;
+    letter-spacing: 0.12em; padding: 3px 8px; border-radius: 4px;
+    background: rgba(78,205,196,0.12); color: #4ecdc4;
+    font-weight: 500;
+  }
+  .project-card .badge-gold { background: rgba(245,178,79,0.12); color: #f5b24f; }
+  .project-card h3 {
+    font-size: 20px; font-weight: 600; letter-spacing: -0.01em;
+    margin-bottom: 8px; cursor: default;
+  }
+  .project-card .scramble { display: inline-block; }
+  .project-card p.desc {
+    color: rgba(255,255,255,0.62); font-size: 15px; margin-bottom: 16px; line-height: 1.65;
+    max-width: 600px;
+  }
+  .project-card .pills { margin-bottom: 0; }
+  .metric-row { display: flex; gap: 26px; flex-wrap: wrap; margin: 16px 0; }
+  .metric .mv {
+    font-family: 'JetBrains Mono', monospace; font-size: 20px; color: #4ecdc4; font-weight: 500;
+  }
+  .metric .ml { font-size: 12px; color: rgba(255,255,255,0.45); }
+  .model-results {
+    display: flex; flex-direction: column; gap: 10px; margin: 18px 0;
+    border-left: 2px solid rgba(78,205,196,0.25); padding-left: 16px;
+  }
+  .model-result .mr-model {
+    font-size: 11px; text-transform: uppercase; letter-spacing: 0.12em;
+    color: rgba(255,255,255,0.45); margin-bottom: 2px;
+  }
+  .model-result .mr-metrics { font-size: 14px; color: rgba(255,255,255,0.7); }
+  .model-result .mv {
+    font-family: 'JetBrains Mono', monospace; color: #4ecdc4; font-weight: 500; font-size: 15px;
+  }
+  .model-result .mr-note { font-size: 12px; color: rgba(255,255,255,0.4); }
+  .project-links { display: flex; gap: 18px; font-size: 13px; margin-top: 16px; }
+  .project-links a { color: rgba(255,255,255,0.6); transition: color 180ms ease; }
+  .project-links a:hover { color: #4ecdc4; }
+
+  .other-projects { margin-top: 36px; }
+  .toggle-more { font-size: 13px; color: rgba(255,255,255,0.55); transition: color 180ms ease; padding: 4px 0; }
+  .toggle-more:hover { color: #4ecdc4; }
+  .toggle-more .chev { transition: transform 220ms ease; display: inline-block; }
+  .toggle-more.open .chev { transform: rotate(180deg); }
+  .other-list {
+    list-style: none; overflow: hidden; max-height: 0; opacity: 0; margin-top: 0;
+    transition: max-height 420ms ease, opacity 280ms ease, margin-top 280ms ease;
+  }
+  .other-list.open { max-height: 800px; opacity: 1; margin-top: 18px; }
+  .other-list li {
+    padding: 12px 0; border-bottom: 1px solid rgba(255,255,255,0.05);
+    display: flex; justify-content: space-between; gap: 16px; align-items: baseline;
+  }
+  .other-list li:last-child { border-bottom: none; }
+  .other-list .oname { color: #e8e8e8; font-size: 14px; white-space: nowrap; }
+  .other-list .odesc { color: rgba(255,255,255,0.5); font-size: 13px; text-align: right; }
+
+  /* ---------- Experience / Education timeline ---------- */
+  .timeline {
+    position: relative; border-left: 1px solid rgba(255,255,255,0.1);
+    padding-left: 28px; display: flex; flex-direction: column; gap: 36px;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: -1px; top: 0; width: 1px;
+    height: var(--tl-progress, 0%);
+    background: linear-gradient(to bottom, #4ecdc4, rgba(78,205,196,0.2));
+    box-shadow: 0 0 8px rgba(78,205,196,0.5);
+  }
+  .tl-entry { position: relative; }
+  .tl-entry::before {
+    content: ''; position: absolute; width: 8px; height: 8px; background: #4ecdc4;
+    border-radius: 50%; left: -32px; top: 8px;
+    box-shadow: 0 0 0 4px #0a0a0a, 0 0 12px rgba(78,205,196,0.5);
+    transform: scale(0.6); opacity: 0.5;
+    transition: transform 360ms cubic-bezier(.34,1.56,.64,1), opacity 360ms ease;
+  }
+  .tl-entry.in::before { transform: scale(1); opacity: 1; }
+  .tl-head {
+    display: flex; justify-content: space-between; align-items: baseline;
+    gap: 16px; flex-wrap: wrap; margin-bottom: 4px;
+  }
+  .tl-role { font-size: 15px; font-weight: 600; color: #e8e8e8; }
+  .tl-role .at { color: rgba(255,255,255,0.5); font-weight: 400; }
+  .tl-date { font-size: 13px; color: rgba(255,255,255,0.45); font-family: 'JetBrains Mono', monospace; }
+  .tl-entry ul { list-style: none; margin-top: 10px; }
+  .tl-entry li {
+    color: rgba(255,255,255,0.65); font-size: 14px;
+    padding-left: 16px; position: relative; margin-bottom: 6px;
+  }
+  .tl-entry li::before { content: '–'; position: absolute; left: 0; color: rgba(255,255,255,0.3); }
+  .tl-tag {
+    display: inline-block; font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase;
+    color: #f5b24f; background: rgba(245,178,79,0.1); border-radius: 4px;
+    padding: 2px 8px; margin-top: 10px; font-weight: 500;
+  }
+
+  /* ---------- Certifications ---------- */
+  .cert-list { list-style: none; columns: 1; column-gap: 40px; }
+  @media (min-width: 700px) { .cert-list { columns: 2; } }
+  .cert-list li {
+    color: rgba(255,255,255,0.6); font-size: 14px; padding: 7px 0 7px 20px;
+    position: relative; break-inside: avoid;
+  }
+  .cert-list li::before { content: '✓'; position: absolute; left: 0; color: #4ecdc4; font-size: 12px; }
+
+  /* ---------- Contact ---------- */
+  .contact h2.bighead {
+    font-size: clamp(28px, 5vw, 38px); font-weight: 600;
+    letter-spacing: -0.02em; margin-bottom: 18px; color: #f3f3f3;
+  }
+  .contact p { color: rgba(255,255,255,0.65); margin-bottom: 28px; max-width: 560px; }
+  .email-copy {
+    display: inline-flex; align-items: center; gap: 10px;
+    font-family: 'JetBrains Mono', monospace; font-size: 15px; color: #e8e8e8;
+    padding: 13px 18px; border-radius: 8px; background: #111;
+    border: 1px solid rgba(255,255,255,0.07);
+    transition: border-color 200ms ease, color 200ms ease; cursor: pointer;
+  }
+  .email-copy:hover { border-color: rgba(78,205,196,0.4); }
+  .email-copy.copied { color: #4ecdc4; border-color: rgba(78,205,196,0.5); }
+  .email-copy .ico { opacity: 0.6; }
+  .socials { display: flex; gap: 14px; margin-top: 32px; }
+  .socials a {
+    width: 40px; height: 40px; display: inline-flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.55); border-radius: 8px; border: 1px solid rgba(255,255,255,0.07);
+    transition: color 180ms ease, background-color 180ms ease, transform 220ms cubic-bezier(.34,1.56,.64,1), border-color 180ms ease;
+  }
+  .socials a:hover {
+    color: #4ecdc4; background: rgba(78,205,196,0.06);
+    border-color: rgba(78,205,196,0.3); transform: translateY(-3px);
+  }
+  .socials svg { width: 18px; height: 18px; transition: transform 220ms ease; }
+  .socials a:hover svg { transform: rotate(-6deg); }
+
+  /* ---------- Contact form ---------- */
+  .contact-form {
+    margin-top: 40px; max-width: 480px;
+    display: flex; flex-direction: column; gap: 14px;
+  }
+  .field { position: relative; }
+  .field input, .field textarea {
+    width: 100%; background: #111; border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 8px; padding: 15px 14px 13px; color: #e8e8e8;
+    font-family: 'Inter', sans-serif; font-size: 14px; line-height: 1.5;
+    outline: none; transition: border-color 200ms ease, box-shadow 200ms ease;
+    resize: vertical;
+  }
+  .field textarea { min-height: 110px; }
+  .field label {
+    position: absolute; left: 14px; top: 14px; font-size: 14px;
+    color: rgba(255,255,255,0.4); pointer-events: none;
+    transition: transform 180ms ease, font-size 180ms ease, color 180ms ease, top 180ms ease;
+    background: #111; padding: 0 5px;
+  }
+  .field input:focus, .field textarea:focus {
+    border-color: rgba(78,205,196,0.55);
+    box-shadow: 0 0 0 3px rgba(78,205,196,0.1);
+  }
+  .field input:focus + label, .field textarea:focus + label,
+  .field input:not(:placeholder-shown) + label, .field textarea:not(:placeholder-shown) + label {
+    top: -8px; font-size: 11px; color: #4ecdc4; letter-spacing: 0.06em;
+  }
+  .contact-form .btn { align-self: flex-start; margin-top: 4px; }
+
+  /* ---------- Side vines ---------- */
+  .vine {
+    position: fixed; top: 0; bottom: 0; width: 88px; z-index: 60;
+    pointer-events: none; opacity: 0.9;
+  }
+  .vine.left { left: 0; }
+  .vine.right { right: 0; }
+  .vine svg { width: 100%; height: 100%; animation: vineSway 10s ease-in-out infinite alternate; }
+  @keyframes vineSway {
+    from { transform: translateX(-2px) rotate(-0.3deg); }
+    to { transform: translateX(2px) rotate(0.3deg); }
+  }
+  .vine .stem {
+    fill: none; stroke-width: 1.6; stroke-linecap: round;
+  }
+  .vine .leaf {
+    transform-box: fill-box; transform-origin: left center;
+    transform: scale(0); opacity: 0;
+    transition: transform 800ms cubic-bezier(.34,1.56,.64,1), opacity 600ms ease;
+  }
+  .vine .leaf.grown { transform: scale(1); opacity: 1; }
+  .vine .leaf.near { transform: scale(1.3) rotate(14deg); }
+  .vine .leaf-body {
+    fill: rgba(78,205,196,0.32); stroke: rgba(78,205,196,0.6); stroke-width: 0.7;
+    transition: fill 300ms ease;
+  }
+  .vine .leaf.near .leaf-body { fill: rgba(78,205,196,0.65); }
+  .vine .leaf-vein { fill: none; stroke: rgba(78,205,196,0.55); stroke-width: 0.5; }
+  .vine .tendril {
+    fill: none; stroke: rgba(78,205,196,0.45); stroke-width: 1; stroke-linecap: round;
+    transition: stroke-dashoffset 1400ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .vine .bud {
+    fill: #4ecdc4; opacity: 0; transform-box: fill-box; transform-origin: center;
+    transform: scale(0);
+    transition: opacity 600ms ease, transform 600ms cubic-bezier(.34,1.56,.64,1);
+  }
+  .vine .bud.grown { opacity: 0.75; transform: scale(1); }
+  .vine .blossom {
+    transform-box: fill-box; transform-origin: center;
+    transform: scale(0) rotate(-60deg); opacity: 0;
+    transition: transform 900ms cubic-bezier(.34,1.56,.64,1), opacity 600ms ease;
+  }
+  .vine .blossom.grown { transform: scale(1) rotate(0deg); opacity: 1; }
+  .vine .blossom.near { transform: scale(1.35) rotate(25deg); }
+  .vine .petal { fill: rgba(78,205,196,0.4); stroke: rgba(78,205,196,0.6); stroke-width: 0.5; }
+  .vine .blossom-core { fill: #f5b24f; opacity: 0.9; }
+  .firefly {
+    position: absolute; width: 4px; height: 4px; border-radius: 50%;
+    background: #4ecdc4; box-shadow: 0 0 8px 2px rgba(78,205,196,0.5);
+    opacity: 0; animation: fireflyFloat var(--fd, 9s) var(--fdel, 0s) ease-in-out infinite;
+  }
+  @keyframes fireflyFloat {
+    0% { transform: translate(0, 0); opacity: 0; }
+    10% { opacity: 0.9; }
+    35% { transform: translate(var(--fx1, 14px), -28vh); opacity: 0.35; }
+    55% { opacity: 0.9; }
+    75% { transform: translate(var(--fx2, -10px), -58vh); opacity: 0.3; }
+    100% { transform: translate(var(--fx3, 6px), -85vh); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .firefly, .vine svg { animation: none; }
+    .squiggle path { stroke-dashoffset: 0; animation: none; }
+  }
+  @media (max-width: 900px) { .vine { display: none; } }
+
+  footer { padding: 60px 0 40px; text-align: center; font-size: 12px; color: rgba(255,255,255,0.35); }
+
+  /* ---------- Popover & toast ---------- */
+  .popover {
+    position: absolute; z-index: 60; background: #181818;
+    border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 10px 12px;
+    font-size: 13px; color: #e8e8e8; max-width: 240px; line-height: 1.5;
+    box-shadow: 0 8px 30px rgba(0,0,0,0.5); opacity: 0; transform: translateY(4px);
+    pointer-events: none; transition: opacity 160ms ease, transform 160ms ease;
+  }
+  .popover.show { opacity: 1; transform: translateY(0); pointer-events: auto; }
+  .toast {
+    position: fixed; left: 50%; bottom: 36px; transform: translate(-50%, 24px);
+    background: #111; border: 1px solid rgba(78,205,196,0.5); color: #4ecdc4;
+    font-family: 'JetBrains Mono', monospace; font-size: 13px; padding: 10px 16px;
+    border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+    opacity: 0; pointer-events: none; z-index: 200;
+    transition: opacity 220ms ease, transform 220ms ease;
+  }
+  .toast.show { opacity: 1; transform: translate(-50%, 0); }
+
+  body.konami .pill, body.konami .skill-card h3, body.konami .tl-role {
+    animation: hueShift 4s linear infinite;
+  }
+  @keyframes hueShift { 100% { filter: hue-rotate(360deg); } }
+
+  @media (prefers-reduced-motion: reduce) {
+    .reveal { opacity: 1 !important; transform: none !important; transition: none; }
+    .grain, .currently .pulse, .hero .cursor { animation: none; }
+    body.konami .pill, body.konami .skill-card h3, body.konami .tl-role { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="scroll-progress" id="scrollProgress" aria-hidden="true"></div>
+<canvas id="stars" aria-hidden="true"></canvas>
+<div class="spotlight" aria-hidden="true"></div>
+<div class="grain" aria-hidden="true"></div>
+<div class="vine left" id="vineLeft" aria-hidden="true"></div>
+<div class="vine right" id="vineRight" aria-hidden="true"></div>
+
+<nav class="top" id="topnav">
+  <div class="nav-inner">
+    <a href="#hero" class="brand">wimukthi deshan<span class="dot">.</span></a>
+    <ul>
+      <li><a href="#about" data-nav="about">About</a></li>
+      <li><a href="#projects" data-nav="projects">Projects</a></li>
+      <li><a href="#experience" data-nav="experience">Experience</a></li>
+      <li><a href="#certs" data-nav="certs">Certifications</a></li>
+      <li><a href="#contact" data-nav="contact">Contact</a></li>
+    </ul>
+  </div>
+</nav>
+
+<main>
+
+  <!-- HERO -->
+  <section id="hero" class="hero" data-screen-label="Hero">
+    <div class="container">
+      <div class="hero-grid">
+        <div>
+          <div class="kicker reveal">Hi, my name is</div>
+          <h1 class="reveal">Wimukthi Deshan.</h1>
+          <div class="reveal"><svg class="squiggle" viewBox="0 0 240 16" aria-hidden="true"><path d="M4 10 Q 34 3 62 9 T 120 8 T 178 10 T 236 7"></path></svg></div>
+          <h2 class="tagline reveal"><span id="typed">I build mobile &amp; full-stack apps people actually use.</span><span class="cursor" aria-hidden="true"></span></h2>
+          <p class="bio reveal">
+            Software engineer based in Sri Lanka, specialising in Flutter, full-stack
+            development and applied machine learning. BSc (Hons) Computer Science — First Class
+            Honours, University of Westminster. I care about clean architecture, shipped
+            products, and apps that solve real problems.
+          </p>
+          <div class="cta-row reveal">
+            <a href="#projects" class="btn btn-primary">See my work</a>
+            <a href="#contact" class="btn btn-ghost">Get in touch</a>
+          </div>
+          <div class="currently reveal">
+            <span class="pulse" aria-hidden="true"></span>
+            <span>Open to new opportunities</span>
+          </div>
+        </div>
+        <div class="portrait-wrap reveal" id="avatar">
+          <img class="portrait" src="uploads/1711188239802.jpg" alt="Wimukthi Deshan" />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ABOUT -->
+  <section id="about" data-screen-label="About">
+    <div class="container">
+      <div class="section-label reveal">About</div>
+      <div class="about-text">
+        <p class="reveal">
+          I'm a software engineer who moved from curiosity to shipping — most recently as an
+          Associate Software Engineer at Axcertro, building mobile and full-stack applications
+          with Flutter, Next.js and Node.js, and maintaining CI/CD pipelines for automated
+          testing and Play Store deployments.
+        </p>
+        <p class="reveal">
+          Machine learning is where I'm heading. My IEEE-published final-year research, RxLense,
+          tackled a real patient-safety problem — making handwritten medical prescriptions
+          readable for patients — by designing and fine-tuning a multi-stage pipeline of
+          transformer and vision models (YOLO11, TrOCR, BioBERT) on datasets I built from
+          scratch. Deep learning applied to real-world problems is what I want to keep
+          pursuing.
+        </p>
+        <p class="reveal">
+          Alongside full-time work I've freelanced on Fiverr for over three years, delivering
+          mobile and back-end projects for clients around the world.
+        </p>
+
+        <div class="stack-row reveal">
+          <div class="label">Currently using</div>
+          <div class="pills">
+            <span class="pill">Flutter / Dart</span>
+            <span class="pill">Next.js</span>
+            <span class="pill">Node.js</span>
+            <span class="pill">Firebase</span>
+            <span class="pill">PostgreSQL</span>
+            <span class="pill">MySQL</span>
+            <span class="pill">Riverpod</span>
+            <span class="pill">Docker</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SKILLS -->
+  <section id="skills" data-screen-label="Skills">
+    <div class="container">
+      <div class="section-label reveal">Skills</div>
+      <div class="skills-grid">
+        <div class="skill-card reveal">
+          <h3>Mobile</h3>
+          <ul>
+            <li>Flutter &amp; Dart</li>
+            <li>Riverpod state management</li>
+            <li>Firebase (Auth, Firestore, Storage)</li>
+            <li>Play Store deployment</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal">
+          <h3>Full-stack</h3>
+          <ul>
+            <li>Next.js, React</li>
+            <li>Node.js, Express</li>
+            <li>Spring Boot, JAX-RS</li>
+            <li>REST API design</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal">
+          <h3>Languages</h3>
+          <ul>
+            <li>Dart, JavaScript / TypeScript</li>
+            <li>Java, Python</li>
+            <li>R, SQL</li>
+            <li>HTML, CSS</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal">
+          <h3>Data &amp; ML</h3>
+          <ul>
+            <li>PyTorch, Transformers</li>
+            <li>YOLO object detection</li>
+            <li>OCR (TrOCR), NER (BioBERT)</li>
+            <li>Neural networks in R</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal">
+          <h3>Databases</h3>
+          <ul>
+            <li>PostgreSQL, MySQL</li>
+            <li>MongoDB, SQLite</li>
+            <li>Firebase Firestore</li>
+          </ul>
+        </div>
+        <div class="skill-card reveal">
+          <h3>Tools &amp; DevOps</h3>
+          <ul>
+            <li>Git, CI/CD pipelines</li>
+            <li>Docker</li>
+            <li>Postman, Figma</li>
+            <li>Automated testing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PROJECTS -->
+  <section id="projects" data-screen-label="Projects">
+    <div class="container">
+      <div class="section-label reveal">Selected Projects</div>
+      <div class="projects-stack">
+
+        <article class="project-card reveal" data-tilt>
+          <div class="badge-row">
+            <span class="badge">Final Year Project</span>
+            <span class="badge badge-gold">IEEE Published</span>
+          </div>
+          <h3><span class="scramble" data-text="RxLense">RxLense</span></h3>
+          <p class="desc">
+            A multi-stage transformer pipeline that reads handwritten medical prescriptions and
+            explains them in patient-friendly language — the first system of its kind grounded in
+            Sri Lankan clinical conventions, with a drug-verification layer against the NMRA
+            national registry. A fine-tuned YOLO11 model detects prescription layout, TrOCR
+            transcribes the handwriting (halving the character error rate of zero-shot
+            baselines), BioBERT extracts drugs, dosages, frequencies and durations, and
+            generative AI produces safe, plain-language explanations — all deployed end-to-end in
+            a Flutter mobile app. Every model was trained on domain-specific datasets built
+            entirely from scratch, validated with 5-fold cross-validation and OCR-noise
+            robustness testing.
+          </p>
+          <div class="model-results">
+            <div class="model-result">
+              <div class="mr-model">YOLO11 · Layout detection</div>
+              <div class="mr-metrics"><span class="mv">70.2%</span> <a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="0469455444342a31">[email&#160;protected]</a> · <span class="mv">69.6%</span> F1</div>
+            </div>
+            <div class="model-result">
+              <div class="mr-model">TrOCR · Handwriting recognition</div>
+              <div class="mr-metrics"><span class="mv">14.85%</span> CER · <span class="mv">30.24%</span> WER <span class="mr-note">(vs 72–91% CER zero-shot baselines)</span></div>
+            </div>
+            <div class="model-result">
+              <div class="mr-model">BioBERT · Clinical NER</div>
+              <div class="mr-metrics"><span class="mv">0.996</span> micro-F1 · <span class="mv">0.9967</span> 5-fold CV mean</div>
+            </div>
+          </div>
+          <div class="pills">
+            <span class="pill">Flutter</span>
+            <span class="pill">YOLO11</span>
+            <span class="pill">TrOCR</span>
+            <span class="pill">BioBERT</span>
+            <span class="pill">Generative AI</span>
+          </div>
+          <div class="project-links">
+            <a href="https://ieeexplore.ieee.org/document/0000000" target="_blank" rel="noopener">Read the paper (IEEE) ↗</a>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-tilt>
+          <h3><span class="scramble" data-text="Ravishway">Ravishway</span></h3>
+          <p class="desc">
+            An international banking &amp; e-wallet mobile app for transferring money between two
+            countries — live exchange rates, a built-in currency converter, and secure
+            wallet-to-wallet transfers.
+          </p>
+          <div class="pills">
+            <span class="pill">Flutter</span>
+            <span class="pill">Dart</span>
+            <span class="pill">Firebase</span>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-tilt>
+          <h3><span class="scramble" data-text="Life of Sport">Life of Sport</span></h3>
+          <p class="desc">
+            A complete gym management system: a Next.js admin dashboard for owners and staff,
+            a Node.js backend, a Flutter mobile app for members, and a Supabase database —
+            covering memberships, scheduling, and day-to-day gym operations.
+          </p>
+          <div class="pills">
+            <span class="pill">Next.js</span>
+            <span class="pill">Node.js</span>
+            <span class="pill">Flutter</span>
+            <span class="pill">Supabase</span>
+          </div>
+        </article>
+
+        <article class="project-card reveal" data-tilt>
+          <h3><span class="scramble" data-text="Shieldy">Shieldy</span></h3>
+          <p class="desc">
+            A crowdsourced crisis-reporting mobile app. Users post about dangers and crises around
+            them; an algorithm ranks severity, and when a situation crosses a threshold the
+            relevant government authorities are notified automatically.
+          </p>
+          <div class="pills">
+            <span class="pill">Flutter</span>
+            <span class="pill">Firebase</span>
+            <span class="pill">MongoDB</span>
+            <span class="pill">Figma</span>
+          </div>
+        </article>
+      </div>
+
+      <div class="other-projects reveal">
+        <button class="toggle-more" id="toggleMore" aria-expanded="false">
+          Other things I've built <span class="chev">↓</span>
+        </button>
+        <ul class="other-list" id="otherList">
+          <li><span class="oname">Foods POS System</span><span class="odesc">Cross-platform POS for food retail — Flutter, Firebase, Windows installer</span></li>
+          <li><span class="oname">MoveEasy</span><span class="odesc">Vehicle-rental e-commerce app — Flutter front end</span></li>
+          <li><span class="oname">ChatApp</span><span class="odesc">Real-time chat with Socket.io, auth &amp; chat rooms</span></li>
+          <li><span class="oname">Meet App</span><span class="odesc">Dating app with swipe cards, matching &amp; chat — Flutter</span></li>
+          <li><span class="oname">Eventify</span><span class="odesc">Event ticket booking app — Flutter, Firebase</span></li>
+          <li><span class="oname">Health System API</span><span class="odesc">REST consultation-booking API — Java, JAX-RS</span></li>
+          <li><span class="oname">USD Exchange Predictor</span><span class="odesc">MLP neural network forecasting USD/EUR — R</span></li>
+          <li><span class="oname">Wine Quality Analyzer</span><span class="odesc">k-means clustering + PCA on wine data — R</span></li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPERIENCE -->
+  <section id="experience" data-screen-label="Experience">
+    <div class="container">
+      <div class="section-label reveal">Experience &amp; Education</div>
+      <div class="timeline">
+
+        <div class="tl-entry reveal">
+          <div class="tl-head">
+            <div class="tl-role">Associate Software Engineer <span class="at">@ Axcertro</span></div>
+            <div class="tl-date">Jun 2025 — Sep 2025</div>
+          </div>
+          <ul>
+            <li>Built mobile &amp; full-stack applications with Flutter/Dart, Next.js, Node.js, MySQL, PostgreSQL and Firebase.</li>
+            <li>Owned CI/CD pipelines for automated testing and deployments.</li>
+          </ul>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-head">
+            <div class="tl-role">Software Engineer Intern <span class="at">@ Axcertro</span></div>
+            <div class="tl-date">Jun 2024 — Jun 2025</div>
+          </div>
+          <ul>
+            <li>Worked across mobile &amp; full-stack projects on the same stack.</li>
+            <li>Set up and maintained CI/CD pipelines for automated builds and Play Store deployments.</li>
+          </ul>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-head">
+            <div class="tl-role">Professional Freelancer <span class="at">@ Fiverr</span></div>
+            <div class="tl-date">Jun 2022 — Sep 2025</div>
+          </div>
+          <ul>
+            <li>3+ years delivering mobile application and back-end development projects for international clients.</li>
+          </ul>
+        </div>
+
+        <div class="tl-entry reveal">
+          <div class="tl-head">
+            <div class="tl-role">BSc (Hons) Computer Science <span class="at">@ University of Westminster</span></div>
+            <div class="tl-date">IIT, Colombo</div>
+          </div>
+          <ul>
+            <li>Final-year project: RxLense — transformer-based handwritten prescription interpretation.</li>
+          </ul>
+          <div class="tl-tag">First Class Honours</div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- CERTIFICATIONS -->
+  <section id="certs" data-screen-label="Certifications">
+    <div class="container">
+      <div class="section-label reveal">Certifications</div>
+      <ul class="cert-list">
+        <li class="reveal">Professional Diploma in Software Testing &amp; QA — Udemy</li>
+        <li class="reveal">Flutter &amp; Dart: Android and iOS apps — Udemy</li>
+        <li class="reveal">Advanced Foundations of Python Programming — Udemy</li>
+        <li class="reveal">Databases with Python: MySQL, SQLite &amp; MongoDB — Udemy</li>
+        <li class="reveal">Machine Learning: Basic to Advanced — Udemy</li>
+        <li class="reveal">ISTQB Mobile Application Testing — Udemy</li>
+        <li class="reveal">Java &amp; AI Programming Tools — Udemy</li>
+        <li class="reveal">Statistics &amp; Hypothesis Testing for Data Science — Udemy</li>
+        <li class="reveal">User Stories for Agile Scrum + Product Owner — Udemy</li>
+        <li class="reveal">Product Marketing Launch Plan — Udemy</li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- CONTACT -->
+  <section id="contact" class="contact" data-screen-label="Contact">
+    <div class="container">
+      <div class="section-label reveal">Contact</div>
+      <h2 class="bighead reveal">Let's build something.</h2>
+      <p class="reveal">
+        Whether it's a role, a freelance project, or a question about anything I've built —
+        my inbox is open.
+      </p>
+      <button class="email-copy reveal" id="emailCopy" data-email="wimukthideshan@gmail.com">
+        <span class="ico">✉</span>
+        <span class="text"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="bec9d7d3cbd5cad6d7dadbcdd6dfd0fed9d3dfd7d290ddd1d3">[email&#160;protected]</a></span>
+      </button>
+
+      <form class="contact-form reveal" id="contactForm">
+        <div class="field">
+          <input type="text" id="cfName" name="name" placeholder=" " required autocomplete="name" />
+          <label for="cfName">Your name</label>
+        </div>
+        <div class="field">
+          <input type="email" id="cfEmail" name="email" placeholder=" " required autocomplete="email" />
+          <label for="cfEmail">Your email</label>
+        </div>
+        <div class="field">
+          <textarea id="cfMsg" name="message" placeholder=" " required></textarea>
+          <label for="cfMsg">What's on your mind?</label>
+        </div>
+        <button type="submit" class="btn btn-primary">Send message →</button>
+      </form>
+
+      <div class="socials reveal">
+        <a href="https://github.com/wimukthideshan" aria-label="GitHub" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M12 .5C5.7.5.7 5.5.7 11.8c0 5 3.3 9.2 7.8 10.7.6.1.8-.2.8-.6v-2.1c-3.2.7-3.9-1.5-3.9-1.5-.5-1.4-1.3-1.7-1.3-1.7-1-.7.1-.7.1-.7 1.2.1 1.8 1.2 1.8 1.2 1 1.8 2.8 1.3 3.5 1 .1-.8.4-1.3.7-1.6-2.6-.3-5.3-1.3-5.3-5.7 0-1.3.5-2.3 1.2-3.1-.1-.3-.5-1.5.1-3.1 0 0 1-.3 3.3 1.2.9-.3 2-.4 3-.4s2 .1 3 .4c2.3-1.5 3.3-1.2 3.3-1.2.6 1.6.2 2.8.1 3.1.8.8 1.2 1.9 1.2 3.1 0 4.4-2.7 5.4-5.3 5.7.4.4.8 1.1.8 2.2v3.3c0 .3.2.7.8.6 4.5-1.5 7.8-5.7 7.8-10.7C23.3 5.5 18.3.5 12 .5z"/>
+          </svg>
+        </a>
+        <a href="https://linkedin.com/in/wimukthideshan" aria-label="LinkedIn" target="_blank" rel="noopener">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <path d="M20.5 2h-17A1.5 1.5 0 002 3.5v17A1.5 1.5 0 003.5 22h17a1.5 1.5 0 001.5-1.5v-17A1.5 1.5 0 0020.5 2zM8 19H5v-9h3v9zM6.5 8.7a1.7 1.7 0 110-3.4 1.7 1.7 0 010 3.4zM19 19h-3v-4.4c0-1-.4-1.7-1.4-1.7-.8 0-1.2.5-1.4 1-.1.2-.1.5-.1.7V19h-3v-9h3v1.3c.4-.6 1.1-1.5 2.7-1.5 2 0 3.2 1.3 3.2 4V19z"/>
+          </svg>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <footer>
+    <div class="container">Wimukthi Deshan · 2026 · Designed &amp; built with care.</div>
+  </footer>
+
+</main>
+
+<div class="popover" id="popover" role="tooltip"></div>
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+(() => {
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  /* Console greeting */
+  try {
+    console.log('%c👀 Oh hey, a fellow developer.', 'color:#4ecdc4;font-size:13px;font-weight:600;');
+    console.log('%cLet\'s work together → wimukthideshan@gmail.com', 'color:#e8e8e8;font-size:12px;');
+  } catch (e) {}
+
+  /* Cursor spotlight */
+  const spotlight = document.querySelector('.spotlight');
+  if (spotlight && window.matchMedia('(hover: hover)').matches) {
+    window.addEventListener('mousemove', (e) => {
+      spotlight.style.setProperty('--mx', e.clientX + 'px');
+      spotlight.style.setProperty('--my', e.clientY + 'px');
+    }, { passive: true });
+  }
+
+  /* Scroll progress */
+  const progress = document.getElementById('scrollProgress');
+  const updateProgress = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    if (progress) progress.style.width = (max > 0 ? (h.scrollTop / max) * 100 : 0) + '%';
+  };
+  updateProgress();
+  window.addEventListener('scroll', updateProgress, { passive: true });
+  window.addEventListener('resize', updateProgress);
+
+  /* Timeline fill */
+  const timeline = document.querySelector('.timeline');
+  const updateTimeline = () => {
+    if (!timeline) return;
+    const r = timeline.getBoundingClientRect();
+    const vh = window.innerHeight;
+    const total = r.height + vh * 0.3;
+    const traveled = Math.max(0, Math.min(total, vh * 0.6 - r.top));
+    timeline.style.setProperty('--tl-progress', (traveled / total) * 100 + '%');
+  };
+  updateTimeline();
+  window.addEventListener('scroll', updateTimeline, { passive: true });
+  window.addEventListener('resize', updateTimeline);
+
+  /* Sticky nav */
+  const nav = document.getElementById('topnav');
+  const onScroll = () => nav.classList.toggle('scrolled', window.scrollY > 8);
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  /* Reveal with stagger */
+  document.querySelectorAll('.skills-grid, .projects-stack, .timeline, .cert-list, .pills').forEach(group => {
+    [...group.children].forEach((child, i) => {
+      const target = child.classList.contains('reveal') ? child : child.querySelector('.reveal');
+      if (target) target.style.setProperty('--rd', (i * 70) + 'ms');
+    });
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  if ('IntersectionObserver' in window && !reduced) {
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach(e => {
+        if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); }
+      });
+    }, { threshold: 0.08, rootMargin: '0px 0px -40px 0px' });
+    reveals.forEach(el => io.observe(el));
+  } else {
+    reveals.forEach(el => el.classList.add('in'));
+  }
+
+  /* Active nav */
+  const navLinks = document.querySelectorAll('nav.top a[data-nav]');
+  const navMap = {};
+  navLinks.forEach(a => navMap[a.dataset.nav] = a);
+  const sections = ['about','projects','experience','certs','contact']
+    .map(id => document.getElementById(id)).filter(Boolean);
+  if ('IntersectionObserver' in window) {
+    const navIO = new IntersectionObserver((entries) => {
+      let best = null;
+      entries.forEach(e => {
+        if (e.isIntersecting && (!best || e.intersectionRatio > best.intersectionRatio)) best = e;
+      });
+      if (best) {
+        navLinks.forEach(a => a.classList.remove('active'));
+        const link = navMap[best.target.id];
+        if (link) link.classList.add('active');
+      }
+    }, { threshold: [0.2, 0.4, 0.6], rootMargin: '-30% 0px -50% 0px' });
+    sections.forEach(s => navIO.observe(s));
+  }
+
+  /* Typing effect, re-type on click */
+  const typed = document.getElementById('typed');
+  const typedFull = typed ? typed.textContent : '';
+  const runType = () => {
+    if (!typed) return;
+    typed.textContent = '';
+    const per = Math.max(14, 900 / typedFull.length);
+    let i = 0;
+    const tick = () => {
+      typed.textContent = typedFull.slice(0, ++i);
+      if (i < typedFull.length) setTimeout(tick, per);
+    };
+    setTimeout(tick, 250);
+  };
+  if (typed && !reduced) runType();
+  if (typed) typed.addEventListener('click', () => { if (!reduced) runType(); });
+
+  /* Toast */
+  const toastEl = document.getElementById('toast');
+  let toastTimer;
+  function showToast(msg, ms = 2200) {
+    if (!toastEl) return;
+    toastEl.textContent = msg;
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => toastEl.classList.remove('show'), ms);
+  }
+
+  /* Konami */
+  const konami = ['ArrowUp','ArrowUp','ArrowDown','ArrowDown','ArrowLeft','ArrowRight','ArrowLeft','ArrowRight','b','a'];
+  let kIdx = 0;
+  window.addEventListener('keydown', (e) => {
+    if (e.key.toLowerCase() === konami[kIdx].toLowerCase()) {
+      if (++kIdx === konami.length) {
+        kIdx = 0;
+        document.body.classList.toggle('konami');
+        showToast(document.body.classList.contains('konami') ? 'developer mode: engaged' : 'back to normal');
+      }
+    } else {
+      kIdx = e.key === konami[0] ? 1 : 0;
+    }
+  });
+
+  /* Scramble on hover */
+  const chars = '!<>-_\\/[]{}—=+*^?#________';
+  class Scramble {
+    constructor(el) {
+      this.el = el;
+      this.original = el.dataset.text || el.textContent;
+      this.update = this.update.bind(this);
+      el.addEventListener('mouseenter', () => this.run());
+    }
+    run() {
+      if (reduced || this.running) return;
+      this.running = true;
+      this.queue = [];
+      for (let i = 0; i < this.original.length; i++) {
+        const start = Math.floor(Math.random() * 12);
+        this.queue.push({ from: this.original[i], to: this.original[i], start, end: start + Math.floor(Math.random() * 12) + 6, char: '' });
+      }
+      this.frame = 0;
+      this.update();
+    }
+    update() {
+      let output = '', complete = 0;
+      for (const q of this.queue) {
+        if (this.frame >= q.end) { complete++; output += q.to; }
+        else if (this.frame >= q.start) {
+          if (!q.char || Math.random() < 0.28) q.char = chars[Math.floor(Math.random() * chars.length)];
+          output += `<span style="color:#4ecdc4;opacity:0.85;">${q.char}</span>`;
+        } else output += q.from;
+      }
+      this.el.innerHTML = output;
+      if (complete === this.queue.length) { this.running = false; this.el.textContent = this.original; }
+      else { this.frame++; requestAnimationFrame(this.update); }
+    }
+  }
+  document.querySelectorAll('.scramble').forEach(el => new Scramble(el));
+
+  /* Magnetic buttons */
+  if (window.matchMedia('(hover: hover)').matches && !reduced) {
+    document.querySelectorAll('.btn').forEach(btn => {
+      btn.addEventListener('mousemove', (e) => {
+        const r = btn.getBoundingClientRect();
+        btn.style.transform = `translate(${(e.clientX - r.left - r.width/2) * 0.18}px, ${(e.clientY - r.top - r.height/2) * 0.25 - 2}px)`;
+        btn.style.setProperty('--bx', (e.clientX - r.left) + 'px');
+        btn.style.setProperty('--by', (e.clientY - r.top) + 'px');
+      });
+      btn.addEventListener('mouseleave', () => { btn.style.transform = ''; });
+    });
+  }
+
+  /* Project card tilt */
+  if (window.matchMedia('(hover: hover)').matches && !reduced) {
+    document.querySelectorAll('[data-tilt]').forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const r = card.getBoundingClientRect();
+        const x = (e.clientX - r.left) / r.width - 0.5;
+        const y = (e.clientY - r.top) / r.height - 0.5;
+        card.style.transform = `perspective(900px) rotateX(${(-y*3).toFixed(2)}deg) rotateY(${(x*3).toFixed(2)}deg)`;
+      });
+      card.addEventListener('mouseleave', () => { card.style.transform = ''; });
+    });
+  }
+
+  /* Other projects toggle */
+  const toggleMore = document.getElementById('toggleMore');
+  const otherList = document.getElementById('otherList');
+  if (toggleMore && otherList) {
+    toggleMore.addEventListener('click', () => {
+      const open = otherList.classList.toggle('open');
+      toggleMore.classList.toggle('open', open);
+      toggleMore.setAttribute('aria-expanded', String(open));
+      toggleMore.firstChild.textContent = open ? 'Hide other projects ' : "Other things I've built ";
+    });
+  }
+
+  /* Contact form → mailto */
+  const contactForm = document.getElementById('contactForm');
+  if (contactForm) {
+    contactForm.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const name = document.getElementById('cfName').value.trim();
+      const from = document.getElementById('cfEmail').value.trim();
+      const msg = document.getElementById('cfMsg').value.trim();
+      const subject = encodeURIComponent('Portfolio contact — ' + name);
+      const body = encodeURIComponent(msg + '\n\n— ' + name + ' (' + from + ')');
+      window.location.href = 'mailto:wimukthideshan@gmail.com?subject=' + subject + '&body=' + body;
+      showToast('opening your mail app…');
+    });
+  }
+
+  /* ---- Side vines: smoothly grown, cursor-reactive ---- */
+  function buildVine(container, mirrored) {
+    const W = 88, H = window.innerHeight;
+    const svgNS = 'http://www.w3.org/2000/svg';
+    const svg = document.createElementNS(svgNS, 'svg');
+    svg.setAttribute('viewBox', `0 0 ${W} ${H}`);
+    svg.setAttribute('preserveAspectRatio', 'none');
+
+    // gradient + glow defs
+    const gradId = mirrored ? 'vineGradR' : 'vineGradL';
+    const defs = document.createElementNS(svgNS, 'defs');
+    defs.innerHTML =
+      `<linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1">` +
+      `<stop offset="0" stop-color="rgba(78,205,196,0.65)"></stop>` +
+      `<stop offset="0.6" stop-color="rgba(78,205,196,0.4)"></stop>` +
+      `<stop offset="1" stop-color="rgba(78,205,196,0.2)"></stop>` +
+      `</linearGradient>` +
+      `<filter id="${gradId}Glow" x="-60%" y="-60%" width="220%" height="220%">` +
+      `<feGaussianBlur stdDeviation="1.6" result="b"></feGaussianBlur>` +
+      `<feMerge><feMergeNode in="b"></feMergeNode><feMergeNode in="SourceGraphic"></feMergeNode></feMerge>` +
+      `</filter>`;
+    svg.appendChild(defs);
+
+    // wavy stem path from top to bottom
+    const segs = Math.max(6, Math.round(H / 160));
+    const baseX = mirrored ? W - 26 : 26;
+    let d = `M ${baseX} -10`;
+    let py = -10;
+    for (let i = 1; i <= segs; i++) {
+      const y = (H + 20) * (i / segs);
+      const amp = 16 + Math.sin(i * 1.7) * 8;
+      const cx1 = baseX + (i % 2 ? amp : -amp);
+      d += ` C ${cx1} ${py + (y - py) * 0.35}, ${cx1} ${py + (y - py) * 0.65}, ${baseX} ${y}`;
+      py = y;
+    }
+    const stem = document.createElementNS(svgNS, 'path');
+    stem.setAttribute('class', 'stem');
+    stem.setAttribute('d', d);
+    stem.setAttribute('stroke', `url(#${gradId})`);
+    stem.setAttribute('filter', `url(#${gradId}Glow)`);
+    svg.appendChild(stem);
+    container.appendChild(svg);
+
+    const len = stem.getTotalLength();
+    stem.style.strokeDasharray = len;
+    stem.style.strokeDashoffset = len;
+
+    // decorations along the stem
+    const leaves = [];
+    const dir = mirrored ? -1 : 1;
+    const nNodes = Math.round(len / 85);
+    for (let i = 1; i <= nNodes; i++) {
+      const frac = i / (nNodes + 1);
+      const pt = stem.getPointAtLength(len * frac);
+      const side = i % 2 ? 1 : -1;
+      const lx = pt.x, ly = pt.y;
+      const jitter = (Math.sin(i * 7.3) * 14);
+
+      // sculpted leaf with vein, rotated outward from the stem
+      const ang = (side > 0 ? -32 : 148) + jitter;
+      const s = 0.85 + (i % 3) * 0.25;
+      const outer = document.createElementNS(svgNS, 'g');
+      outer.setAttribute('transform', `translate(${lx} ${ly}) scale(${dir * s} ${s}) rotate(${ang})`);
+      const leafG = document.createElementNS(svgNS, 'g');
+      leafG.setAttribute('class', 'leaf');
+      leafG.dataset.frac = frac;
+      const body = document.createElementNS(svgNS, 'path');
+      body.setAttribute('d', 'M0 0 C4 -5 11 -5.5 16 -1.2 C11 4 4.5 3.6 0 0 Z');
+      body.setAttribute('class', 'leaf-body');
+      const vein = document.createElementNS(svgNS, 'path');
+      vein.setAttribute('d', 'M1.5 -0.2 Q8 -1.8 14.5 -1.1');
+      vein.setAttribute('class', 'leaf-vein');
+      leafG.appendChild(body); leafG.appendChild(vein);
+      outer.appendChild(leafG);
+      svg.appendChild(outer);
+      leaves.push(leafG);
+
+      // curling tendrils
+      if (i % 4 === 1) {
+        const tOuter = document.createElementNS(svgNS, 'g');
+        const tAng = (side > 0 ? -70 : 190) + jitter;
+        tOuter.setAttribute('transform', `translate(${lx} ${ly}) scale(${dir} 1) rotate(${tAng})`);
+        const tendril = document.createElementNS(svgNS, 'path');
+        tendril.setAttribute('d', 'M0 0 Q9 -2 11.5 -9 Q12.8 -14.5 8 -14 Q4.5 -13.5 6 -10.2 Q7 -8.4 9 -9.4');
+        tendril.setAttribute('class', 'tendril');
+        tOuter.appendChild(tendril);
+        svg.appendChild(tOuter);
+        const tLen = tendril.getTotalLength();
+        tendril.style.strokeDasharray = tLen;
+        tendril.style.strokeDashoffset = tLen;
+        tendril.dataset.frac = frac;
+        tendril.dataset.len = tLen;
+        leaves.push(tendril);
+      }
+
+      // buds
+      if (i % 4 === 0) {
+        const bud = document.createElementNS(svgNS, 'circle');
+        bud.setAttribute('cx', lx); bud.setAttribute('cy', ly);
+        bud.setAttribute('r', 2.2);
+        bud.setAttribute('class', 'bud');
+        bud.dataset.frac = frac;
+        svg.appendChild(bud);
+        leaves.push(bud);
+      }
+
+      // blossoms every 5th node
+      if (i % 5 === 2) {
+        const g = document.createElementNS(svgNS, 'g');
+        g.setAttribute('class', 'blossom');
+        g.dataset.frac = frac;
+        for (let p = 0; p < 5; p++) {
+          const petal = document.createElementNS(svgNS, 'ellipse');
+          const pAng = (p / 5) * Math.PI * 2;
+          petal.setAttribute('cx', lx + Math.cos(pAng) * 5);
+          petal.setAttribute('cy', ly + Math.sin(pAng) * 5);
+          petal.setAttribute('rx', 4); petal.setAttribute('ry', 2.6);
+          petal.setAttribute('transform', `rotate(${pAng * 180 / Math.PI} ${lx + Math.cos(pAng) * 5} ${ly + Math.sin(pAng) * 5})`);
+          petal.setAttribute('class', 'petal');
+          g.appendChild(petal);
+        }
+        const core = document.createElementNS(svgNS, 'circle');
+        core.setAttribute('cx', lx); core.setAttribute('cy', ly);
+        core.setAttribute('r', 2);
+        core.setAttribute('class', 'blossom-core');
+        g.appendChild(core);
+        svg.appendChild(g);
+        leaves.push(g);
+      }
+    }
+    // fireflies drifting up the edge strip
+    if (!reduced) {
+      for (let f = 0; f < 5; f++) {
+        const fly = document.createElement('div');
+        fly.className = 'firefly';
+        fly.style.left = (10 + Math.random() * (W - 20)) + 'px';
+        fly.style.top = (55 + Math.random() * 40) + 'vh';
+        fly.style.setProperty('--fd', (8 + Math.random() * 7) + 's');
+        fly.style.setProperty('--fdel', (Math.random() * 8) + 's');
+        fly.style.setProperty('--fx1', (Math.random() * 30 - 15) + 'px');
+        fly.style.setProperty('--fx2', (Math.random() * 30 - 15) + 'px');
+        fly.style.setProperty('--fx3', (Math.random() * 30 - 15) + 'px');
+        container.appendChild(fly);
+      }
+    }
+    return { svg, stem, len, leaves, container, current: 0 };
+  }
+
+  const vines = [];
+  const vineL = document.getElementById('vineLeft');
+  const vineR = document.getElementById('vineRight');
+  const vinesEnabled = () => window.innerWidth > 900;
+  function initVines() {
+    if (!vineL || !vineR || !vinesEnabled()) return;
+    vineL.innerHTML = ''; vineR.innerHTML = '';
+    vines.length = 0;
+    vines.push(buildVine(vineL, false), buildVine(vineR, true));
+  }
+
+  /* eased growth loop: vines glide toward the scroll target instead of jumping */
+  const vineTarget = () => {
+    const h = document.documentElement;
+    const max = h.scrollHeight - h.clientHeight;
+    return max > 0 ? Math.min(1, (h.scrollTop / max) * 1.08 + 0.06) : 1;
+  };
+  function vineLoop() {
+    if (vines.length) {
+      const target = vineTarget();
+      vines.forEach(v => {
+        v.current += (target - v.current) * (reduced ? 1 : 0.055);
+        if (Math.abs(target - v.current) < 0.0005) v.current = target;
+        v.stem.style.strokeDashoffset = v.len * (1 - v.current);
+        v.leaves.forEach(el => {
+          const grown = parseFloat(el.dataset.frac) < v.current;
+          el.classList.toggle('grown', grown);
+          if (el.classList.contains('tendril')) {
+            el.style.strokeDashoffset = grown ? 0 : el.dataset.len;
+          }
+        });
+      });
+    }
+    requestAnimationFrame(vineLoop);
+  }
+  initVines();
+  requestAnimationFrame(vineLoop);
+  let vineResizeT;
+  window.addEventListener('resize', () => {
+    clearTimeout(vineResizeT);
+    vineResizeT = setTimeout(initVines, 250);
+  });
+
+  /* leaves react to cursor proximity */
+  if (window.matchMedia('(hover: hover)').matches && !reduced) {
+    window.addEventListener('mousemove', (e) => {
+      vines.forEach(v => {
+        const cr = v.container.getBoundingClientRect();
+        // only bother if cursor is near this edge strip
+        if (e.clientX > cr.left - 140 && e.clientX < cr.right + 140) {
+          v.leaves.forEach(el => {
+            const r = el.getBoundingClientRect();
+            const dx = e.clientX - (r.left + r.width / 2);
+            const dy = e.clientY - (r.top + r.height / 2);
+            el.classList.toggle('near', (dx * dx + dy * dy) < 110 * 110 && el.classList.contains('grown'));
+          });
+        } else {
+          v.leaves.forEach(el => el.classList.remove('near'));
+        }
+      });
+    }, { passive: true });
+  }
+
+  /* ---- Starfield with shooting stars ---- */
+  const starsCanvas = document.getElementById('stars');
+  if (starsCanvas && !reduced) {
+    const ctx = starsCanvas.getContext('2d');
+    let stars = [], shooting = null, nextShot = performance.now() + 4000;
+    let mx = 0.5, my = 0.5;
+    const resize = () => {
+      starsCanvas.width = window.innerWidth;
+      starsCanvas.height = window.innerHeight;
+      const n = Math.round(starsCanvas.width * starsCanvas.height / 16000);
+      stars = Array.from({ length: n }, () => ({
+        x: Math.random(), y: Math.random(),
+        r: Math.random() * 1.1 + 0.3,
+        tw: Math.random() * Math.PI * 2,
+        ts: 0.4 + Math.random() * 1.2,
+        depth: 0.3 + Math.random() * 0.7
+      }));
+    };
+    resize();
+    window.addEventListener('resize', resize);
+    window.addEventListener('mousemove', (e) => {
+      mx = e.clientX / window.innerWidth;
+      my = e.clientY / window.innerHeight;
+    }, { passive: true });
+    const draw = (t) => {
+      const W = starsCanvas.width, H = starsCanvas.height;
+      ctx.clearRect(0, 0, W, H);
+      for (const s of stars) {
+        const a = 0.25 + 0.55 * (0.5 + 0.5 * Math.sin(t / 1000 * s.ts + s.tw));
+        const px = s.x * W + (mx - 0.5) * 18 * s.depth;
+        const py = s.y * H + (my - 0.5) * 12 * s.depth;
+        ctx.globalAlpha = a * 0.55;
+        ctx.fillStyle = s.r > 1.1 ? '#9be8e2' : '#ffffff';
+        ctx.beginPath();
+        ctx.arc(px, py, s.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      // shooting star
+      if (!shooting && t > nextShot) {
+        shooting = {
+          x: Math.random() * W * 0.7 + W * 0.15, y: Math.random() * H * 0.3,
+          vx: 6 + Math.random() * 4, vy: 2.5 + Math.random() * 2, life: 1
+        };
+      }
+      if (shooting) {
+        shooting.x += shooting.vx; shooting.y += shooting.vy;
+        shooting.life -= 0.018;
+        if (shooting.life <= 0 || shooting.x > W || shooting.y > H) {
+          shooting = null;
+          nextShot = t + 5000 + Math.random() * 9000;
+        } else {
+          const grad = ctx.createLinearGradient(
+            shooting.x, shooting.y,
+            shooting.x - shooting.vx * 12, shooting.y - shooting.vy * 12);
+          grad.addColorStop(0, `rgba(155,232,226,${0.85 * shooting.life})`);
+          grad.addColorStop(1, 'rgba(155,232,226,0)');
+          ctx.globalAlpha = 1;
+          ctx.strokeStyle = grad;
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(shooting.x, shooting.y);
+          ctx.lineTo(shooting.x - shooting.vx * 12, shooting.y - shooting.vy * 12);
+          ctx.stroke();
+        }
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    };
+    requestAnimationFrame(draw);
+  }
+
+  /* Email copy */
+  const emailBtn = document.getElementById('emailCopy');
+  if (emailBtn) {
+    emailBtn.addEventListener('click', async () => {
+      const email = emailBtn.dataset.email;
+      try { await navigator.clipboard.writeText(email); }
+      catch (e) {
+        const ta = document.createElement('textarea');
+        ta.value = email; document.body.appendChild(ta); ta.select();
+        try { document.execCommand('copy'); } catch (_) {}
+        document.body.removeChild(ta);
+      }
+      const textEl = emailBtn.querySelector('.text');
+      const original = textEl.textContent;
+      textEl.textContent = 'Copied ✓';
+      emailBtn.classList.add('copied');
+      setTimeout(() => { textEl.textContent = original; emailBtn.classList.remove('copied'); }, 1400);
+    });
+  }
+})();
+</script>
+</body>
+</html>
